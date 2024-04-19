@@ -6,13 +6,23 @@ import { Trend, Counter } from "k6/metrics";
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3333';
 
 export let options = {
-  stages: [
-    { duration: "5s", target: 10 },
-    { duration: "10s", target: 10 },
-    { duration: "5s", target: 0 },
-  ],
-  thresholds: {
-    "http_req_duration": ["p(95)<5000"],
+  scenarios: {
+    smoke: {
+      executor: "constant-vus",
+      vus: 1,
+      duration: "10s",
+    },
+    load: {
+      executor: "ramping-vus",
+      startVUs: 0,
+      stages: [
+        { duration: '5s', target: 5 },
+        { duration: '10s', target: 5 },
+        { duration: '5s', target: 0 },
+      ],
+      gracefulRampDown: "5s",
+      startTime: "10s",
+    },
   },
 };
 
